@@ -1,0 +1,58 @@
+<mxfile host="app.diagrams.net" pages="2">
+  <diagram name="Page-1" id="k-hZZbT4hIXXBHybfAoh">
+    <mxGraphModel dx="774" dy="544" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="student" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Student" vertex="1">
+          <mxGeometry height="60" width="30" x="390" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="orders" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fillColor=#d9ead3;strokeColor=#82b366;" value="&lt;b&gt;Orders Service&lt;/b&gt;&lt;br&gt;Member: Subham Ku Mohanty&lt;br&gt;&lt;br&gt;&lt;u&gt;Data owned:&lt;/u&gt;&lt;br&gt;- carts&lt;br&gt;- orders&lt;br&gt;- order_status" vertex="1">
+          <mxGeometry height="120" width="190" x="310" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="account" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;b&gt;Account Service&lt;/b&gt;&lt;br&gt;Member: Mahi Verma&lt;br&gt;&lt;br&gt;&lt;u&gt;Data owned:&lt;/u&gt;&lt;br&gt;- users&lt;br&gt;- addresses" vertex="1">
+          <mxGeometry height="120" width="190" x="40" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="catalogue" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;b&gt;Catalogue Service&lt;/b&gt;&lt;br&gt;Member: Abhishek Jadhao&lt;br&gt;&lt;br&gt;&lt;u&gt;Data owned:&lt;/u&gt;&lt;br&gt;- restaurants&lt;br&gt;- menus&lt;br&gt;- prices" vertex="1">
+          <mxGeometry height="120" width="190" x="580" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="payments" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;b&gt;Payments &amp;amp; Delivery Service&lt;/b&gt;&lt;br&gt;Member: Harsh N Shende&lt;br&gt;&lt;br&gt;&lt;u&gt;Data owned:&lt;/u&gt;&lt;br&gt;- transactions&lt;br&gt;- riders&lt;br&gt;- assignments" vertex="1">
+          <mxGeometry height="120" width="220" x="175" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="notification" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;b&gt;Notification Service&lt;/b&gt;&lt;br&gt;Member: Rishabh Mishra&lt;br&gt;&lt;br&gt;&lt;u&gt;Data owned:&lt;/u&gt;&lt;br&gt;- message_log" vertex="1">
+          <mxGeometry height="120" width="190" x="445" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="student" style="endArrow=classic;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="orders" value="placeOrder">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="orders" style="endArrow=classic;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" target="account" value="getAddress">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="orders" style="endArrow=classic;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="catalogue" value="checkItem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="orders" style="endArrow=classic;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="payments" value="charge">
+          <mxGeometry relative="1" x="0.1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="orders" style="endArrow=classic;html=1;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" target="payments" value="assignRider">
+          <mxGeometry relative="1" x="0.1" y="-15" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="orders" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="notification" value="send">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="jb6dDPv1q_gptWDaKk8c" name="Page-2">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
