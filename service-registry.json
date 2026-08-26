@@ -1,0 +1,9 @@
+{
+  "serviceName": "CampusEatsPaymentPartnerService",
+  "business": "CampusEats Payment Gateway Partner",
+  "serviceType": "SOAP",
+  "operation": "charge",
+  "wsdl": "https://payments.partner.example.com/wsdl/PaymentService.wsdl",
+  "endpoint": "https://payments.partner.example.com/soap/PaymentService",
+  "contract": "urn:campuseats:payment:soap:PaymentPortType:v1"
+}
