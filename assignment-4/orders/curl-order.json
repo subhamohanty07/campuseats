@@ -1,0 +1,10 @@
+﻿{
+  "studentId": "STU-CURL-001",
+  "addressId": "ADDR-CURL-001",
+  "items": [
+    {
+      "itemId": "ITEM-101",
+      "quantity": 2
+    }
+  ]
+}
