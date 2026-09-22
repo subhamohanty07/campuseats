@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusEats | Assignment 5 | Group 12</title>
+<style>
+@page { size: A4; margin: 16mm; }
+
+:root{
+  --ink:#202733;
+  --muted:#667085;
+  --navy:#202b45;
+  --blue:#3f6ea8;
+  --line:#d9e0ea;
+  --soft:#f5f7fa;
+  --accent:#e9f1fb;
+  --warn:#fff7e8;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:34px;
+  max-width:920px;
+  margin-inline:auto;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  color:var(--ink);
+  background:#fff;
+  font-size:10pt;
+  line-height:1.55;
+}
+
+.cover{
+  padding:28px 30px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(135deg,#f7f9fc,#eef4fb);
+  margin-bottom:28px;
+}
+.kicker{
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:var(--blue);
+  font-weight:700;
+  font-size:8.5pt;
+}
+h1{
+  margin:8px 0 5px;
+  font-size:25pt;
+  line-height:1.15;
+  color:var(--navy);
+}
+.subtitle{
+  color:var(--muted);
+  font-size:11pt;
+}
+.team{
+  margin-top:18px;
+  padding:14px 16px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:9px;
+}
+
+h2{
+  margin-top:28px;
+  color:var(--navy);
+  font-size:15pt;
+  padding-bottom:7px;
+  border-bottom:2px solid var(--blue);
+}
+h3{
+  margin-top:20px;
+  color:#334155;
+  font-size:11.5pt;
+}
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  margin:12px 0 18px;
+  font-size:8.8pt;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:8px;
+}
+th,td{
+  padding:8px 9px;
+  text-align:left;
+  vertical-align:top;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+th{
+  background:var(--navy);
+  color:white;
+  font-weight:700;
+}
+tr:last-child td{border-bottom:0}
+th:last-child,td:last-child{border-right:0}
+tr:nth-child(even) td{background:#fafbfd}
+
+.badge{
+  display:inline-block;
+  min-width:42px;
+  text-align:center;
+  padding:2px 7px;
+  border-radius:12px;
+  font-size:7.8pt;
+  font-weight:700;
+}
+.yes{background:#e2f4e8;color:#17633a}
+.no{background:#fde9e9;color:#9a2f2f}
+
+.callout{
+  margin:14px 0;
+  padding:12px 15px;
+  border-left:4px solid var(--blue);
+  background:var(--accent);
+}
+.warning{
+  border-left-color:#d49a27;
+  background:var(--warn);
+}
+
+pre{
+  background:#f4f6f8;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:13px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font-family:"Cascadia Mono","Courier New",monospace;
+  font-size:8.1pt;
+  line-height:1.45;
+}
+code{
+  font-family:"Cascadia Mono","Courier New",monospace;
+  font-size:.92em;
+  background:#f1f3f6;
+  padding:1px 4px;
+  border-radius:3px;
+}
+.question{
+  margin:17px 0;
+  padding:13px 15px;
+  border:1px solid var(--line);
+  border-radius:8px;
+}
+.question strong:first-child{color:var(--navy)}
+.page-break{page-break-before:always}
+footer{
+  margin-top:30px;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:8pt;
+}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="kicker">CS543 · Web Services</div>
+  <h1>CampusEats Orders REST API</h1>
+  <div class="subtitle">Assignment 5 — HTTP Methods, Headers, Caching &amp; Safe Retries</div>
+
+  <div class="team">
+    <strong>Group ID:</strong> 12<br>
+    <strong>Group Leader:</strong> Subham Kumar Mohanty (20252651057)<br>
+    <strong>Team Members:</strong> Harsh N Shende (20252651023),
+    Abhishek Jadhao (20252651003), Mahi Verma (20252651032),
+    Rishabh Mishra (20252651041)
+  </div>
+</section>
+
+<p>
+This document records the implementation of Assignment 5 for the CampusEats Orders
+service. The work covers correct HTTP verbs, query-based reads, non-CRUD actions,
+request and response headers, authentication, CORS, caching with ETags,
+conditional updates, rate-limit signalling, and retry protection.
+The service is implemented in Python using a lightweight WSGI setup without
+external runtime dependencies.
+</p>
+
+<h2>1. HTTP Operations and Method Design</h2>
+
+<h3>1.1 CampusEats endpoint matrix</h3>
+<table>
+<tr>
+  <th>Operation</th><th>HTTP request</th><th>Safe</th><th>Idempotent</th><th>Implementation detail</th>
+</tr>
+<tr>
+  <td>Browse orders</td>
+  <td><code>GET /orders?status=&amp;sort=&amp;page=&amp;pageSize=</code></td>
+  <td><span class="badge yes">YES</span></td>
+  <td><span class="badge yes">YES</span></td>
+  <td>Filtering, ordering and pagination are supplied through the query string. The request only reads server state.</td>
+</tr>
+<tr>
+  <td>View one order</td>
+  <td><code>GET /orders/{orderId}</code></td>
+  <td><span class="badge yes">YES</span></td>
+  <td><span class="badge yes">YES</span></td>
+  <td>The representation carries an ETag and cache policy and can be requested conditionally.</td>
+</tr>
+<tr>
+  <td>Place an order</td>
+  <td><code>POST /orders</code></td>
+  <td><span class="badge no">NO</span></td>
+  <td><span class="badge no">NO*</span></td>
+  <td>Creates a new resource and returns 201 Created together with its Location. The Idempotency-Key makes retries safe.</td>
+</tr>
+<tr>
+  <td>Update delivery address</td>
+  <td><code>PATCH /orders/{orderId}</code></td>
+  <td><span class="badge no">NO</span></td>
+  <td><span class="badge yes">YES</span></td>
+  <td>Only the requested modification is applied. If-Match prevents an older representation from overwriting a newer one.</td>
+</tr>
+<tr>
+  <td>Remove an order</td>
+  <td><code>DELETE /orders/{orderId}</code></td>
+  <td><span class="badge no">NO</span></td>
+  <td><span class="badge yes">YES</span></td>
+  <td>Successful deletion produces 204 No Content and is guarded with If-Match.</td>
+</tr>
+<tr>
+  <td>Ask for cancellation</td>
+  <td><code>POST /orders/{orderId}/cancellation</code></td>
+  <td><span class="badge no">NO</span></td>
+  <td><span class="badge no">NO</span></td>
+  <td>Cancellation is an action rather than ordinary CRUD, so it is represented as a POST sub-resource and returns 202 Accepted.</td>
+</tr>
+<tr>
+  <td>Check allowed methods</td>
+  <td><code>OPTIONS /orders/{orderId}</code></td>
+  <td><span class="badge yes">YES</span></td>
+  <td><span class="badge yes">YES</span></td>
+  <td>Returns the Allow header and also participates in browser CORS preflight handling.</td>
+</tr>
+</table>
+
+<div class="callout">
+<strong>Method override:</strong> A restricted client that cannot transmit PATCH or
+DELETE may use POST together with
+<code>X-HTTP-Method-Override: PATCH</code> or
+<code>X-HTTP-Method-Override: DELETE</code>. This is treated only as a documented
+fallback, not as the normal API design.
+</div>
+
+<h2>2. Request and Response Header Policy</h2>
+
+<h3>2.1 Header matrix</h3>
+<table>
+<tr>
+  <th>Resource</th>
+  <th>Request headers</th>
+  <th>Response status / headers</th>
+</tr>
+<tr>
+  <td><code>GET /orders</code></td>
+  <td><code>Authorization</code>, optional <code>Accept</code> and <code>Accept-Encoding</code></td>
+  <td><code>application/json</code>, private caching, optional gzip, rate-limit information, CORS and security headers</td>
+</tr>
+<tr>
+  <td><code>POST /orders</code></td>
+  <td><code>Authorization</code>, JSON <code>Content-Type</code>, <code>Idempotency-Key</code>, <code>Accept</code></td>
+  <td>201 Created, Location, ETag, <code>Cache-Control: no-store</code>, rate-limit, CORS and security headers</td>
+</tr>
+<tr>
+  <td><code>GET /orders/{id}</code></td>
+  <td><code>Authorization</code>, optional <code>If-None-Match</code> and <code>Accept</code></td>
+  <td>200 OK or 304 Not Modified, ETag, private cache policy, CORS and security headers</td>
+</tr>
+<tr>
+  <td><code>PATCH /orders/{id}</code></td>
+  <td><code>Authorization</code>, JSON <code>Content-Type</code>, mandatory <code>If-Match</code></td>
+  <td>200 OK or 412 Precondition Failed, refreshed ETag and no-store policy</td>
+</tr>
+<tr>
+  <td><code>DELETE /orders/{id}</code></td>
+  <td><code>Authorization</code>, mandatory <code>If-Match</code></td>
+  <td>204 No Content or 412 Precondition Failed, with no-store caching</td>
+</tr>
+<tr>
+  <td><code>POST /orders/{id}/cancellation</code></td>
+  <td><code>Authorization</code>, JSON <code>Content-Type</code></td>
+  <td>202 Accepted, 409 Conflict or 422 Unprocessable Content, with no-store</td>
+</tr>
+<tr>
+  <td><code>OPTIONS</code></td>
+  <td><code>Origin</code> and browser preflight request headers</td>
+  <td>204 No Content, Allow and the required <code>Access-Control-*</code> headers</td>
+</tr>
+</table>
+
+<h2>3. Caching and Reliable Retries</h2>
+
+<h3>3.1 Retry-safety decisions</h3>
+<table>
+<tr>
+  <th>Endpoint</th><th>Potential problem</th><th>Technique</th><th>Reason</th>
+</tr>
+<tr>
+  <td><code>POST /orders</code></td>
+  <td>The connection can fail after the server has created the order. A client retry could otherwise create a duplicate order or repeat payment-related work.</td>
+  <td><strong>Idempotency-Key</strong></td>
+  <td>The first request associates the key with its result. A repeat using the same key returns the original result instead of performing the operation again.</td>
+</tr>
+<tr>
+  <td><code>GET /orders/{id}</code></td>
+  <td>Repeated reads can transfer and parse the same unchanged representation unnecessarily.</td>
+  <td><strong>If-None-Match</strong></td>
+  <td>A matching ETag allows a 304 response without sending the representation again.</td>
+</tr>
+<tr>
+  <td><code>PATCH /orders/{id}</code></td>
+  <td>Two clients may edit the same order from different versions.</td>
+  <td><strong>If-Match</strong></td>
+  <td>The server accepts the update only when the supplied ETag still represents the current version; otherwise it sends 412.</td>
+</tr>
+<tr>
+  <td><code>POST /orders/{id}/cancellation</code></td>
+  <td>A repeated cancellation may target an order that is already cancelled or has reached a terminal state.</td>
+  <td><strong>409 / 422 state checks</strong></td>
+  <td>Conflicting lifecycle states and semantically invalid transitions are rejected rather than silently repeated.</td>
+</tr>
+</table>
+
+<div class="callout warning">
+<strong>Key distinction:</strong> Idempotency-key handling is used for order creation
+because POST is not naturally idempotent. ETags address representation freshness
+and concurrent-write protection rather than replacing the idempotency mechanism.
+</div>
+
+<div class="page-break"></div>
+
+<h2>4. Complete HTTP Exchange</h2>
+
+<h3>4.1 Client request</h3>
+<pre>POST /orders HTTP/1.1
+Host: 127.0.0.1:8001
+User-Agent: curl/8.5.0
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer demo-token
+Idempotency-Key: a5-demo-key-001
+Content-Length: 119
+
+{"customerId":"stu-102","items":[{"menuItemId":"menu-42","quantity":2}],"deliveryAddress":"Hostel A, Room 210"}</pre>
+
+<h3>4.2 Server response</h3>
+<pre>HTTP/1.0 201 Created
+Date: Tue, 22 Sep 2026 03:06:53 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, PATCH, ...
+Access-Control-Allow-Headers: Authorization, ...
+Access-Control-Expose-Headers: Location, ETag, ...
+Vary: Accept, Accept-Encoding, Origin
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000
+X-RateLimit-Limit: 50
+X-RateLimit-Remaining: 49
+Location: /orders/ord-f8a326caa1a1
+Cache-Control: no-store
+ETag: "0aa5da47aa253af6"
+Content-Length: 209
+
+{"id":"ord-f8a326caa1a1","customerId":"stu-102","items":[{"menuItemId":"menu-42","quantity":2}],"deliveryAddress":"Hostel A, Room 210","status":"PAYMENT_PENDING","createdAt":"2026-09-22T03:06:53.004819+00:00"}</pre>
+
+<p class="callout">
+<strong>Protocol note:</strong> The example request uses HTTP/1.1. The development
+WSGI server shown in the captured response reports HTTP/1.0. A production deployment
+behind a modern reverse proxy can provide HTTP/1.1 or HTTP/2.
+</p>
+
+<h2>5. Assignment Question Responses</h2>
+
+<div class="question">
+<strong>Q1. Give three endpoints with their method, successful status and the most important response header.</strong><br><br>
+<strong>POST /orders:</strong> 201 Created with <code>Location</code>. It gives the
+client the URI of the newly generated order.<br>
+<strong>GET /orders/{orderId}:</strong> 200 OK with <code>ETag</code>. The tag supports
+both conditional reads and version-aware updates.<br>
+<strong>DELETE /orders/{orderId}:</strong> 204 No Content with
+<code>Cache-Control: no-store</code>. A deleted representation should not remain
+available from an intermediate cache.
+</div>
+
+<div class="question">
+<strong>Q2. Which endpoints are safe and which are idempotent?</strong><br><br>
+The safe operations are the two GET requests and OPTIONS. GET and OPTIONS are also
+idempotent. PATCH and DELETE are designed to be idempotent as well. Creating an order
+with POST is neither safe nor naturally idempotent, so the service uses an
+<code>Idempotency-Key</code> to make a repeated submission return the original result.
+Cancellation remains a state-changing POST action and is handled through explicit
+lifecycle checks.
+</div>
+
+<div class="question">
+<strong>Q3. Demonstrate ETag use for 304 and 412.</strong><br><br>
+An example service tag is <code>"0aa5da47aa253af6"</code>.<br>
+A GET containing
+<code>If-None-Match: "0aa5da47aa253af6"</code> can receive 304 Not Modified, avoiding
+another representation transfer.<br>
+A PATCH containing an outdated value such as
+<code>If-Match: "stale-etag-99999"</code> receives 412 Precondition Failed, preventing
+a stale editor from overwriting a newer order version.
+</div>
+
+<div class="question">
+<strong>Q4. Explain the difference between 400 and 422 using requests.</strong><br><br>
+<strong>400 Bad Request:</strong>
+<code>POST /orders</code> with <code>{"customerId":"stu-102"}</code> because required
+fields such as <code>items</code> and <code>deliveryAddress</code> are missing.<br><br>
+<strong>422 Unprocessable Content:</strong>
+<code>POST /orders/{id}/cancellation</code> when the order has already been cancelled
+or delivered.<br><br>
+The first is a request-structure problem; the second is a validly structured request
+that cannot be accepted because of the application's current business state.
+</div>
+
+<div class="question">
+<strong>Q5. Why can a browser block a request even when the server returns 200?</strong><br><br>
+The browser applies the Same-Origin Policy. If the response does not grant the
+requesting origin permission through CORS, browser-side JavaScript may be prevented
+from reading the response even though the server itself completed the request.
+<code>Access-Control-Allow-Origin</code>, together with the appropriate OPTIONS
+preflight response, supplies that permission.
+</div>
+
+<div class="question">
+<strong>Q6. Give one cacheable response and one no-store response.</strong><br><br>
+For <code>GET /orders/{id}</code>, the service can use
+<code>Cache-Control: private, max-age=60</code> because a browser may reuse a recent
+private copy while still checking freshness through the ETag mechanism.<br>
+For order creation and updates, <code>Cache-Control: no-store</code> is used because
+these operations change state and should not be replayed from an HTTP cache.
+</div>
+
+<div class="question">
+<strong>Q7. When would POST be preferable to GET for a search?</strong><br><br>
+POST can be useful when the search expression is very large or structurally complex,
+such as a deeply nested filter object or a very long collection of IDs. It can also
+avoid placing sensitive criteria directly in a URL. The trade-off is losing some of
+the natural GET properties, including straightforward URL bookmarking, link sharing,
+browser navigation semantics and normal HTTP caching.
+</div>
+
+<div class="question">
+<strong>Q8. What does Location mean for 201 and 3xx responses?</strong><br><br>
+With <strong>201 Created</strong>, Location identifies the newly created resource.
+With a <strong>3xx redirect</strong>, Location identifies the destination URI to which
+the client should redirect its request.
+</div>
+
+<h2>6. Verification Record</h2>
+
+<pre>$ python3 run_tests.py
+Running 15 test cases for CampusEats Orders API (Assignment 5)...
+  [PASS] test_cancellation_sub_resource
+  [PASS] test_conditional_delete_and_412
+  [PASS] test_conditional_get_returns_304
+  [PASS] test_conditional_patch_update_and_412
+  [PASS] test_content_negotiation_unsupported_accept_returns_406
+  [PASS] test_create_returns_201_location_etag_and_security_headers
+  [PASS] test_gzip_compression_on_large_payload
+  [PASS] test_idempotent_repeat_returns_original_order
+  [PASS] test_invalid_query_params_return_400
+  [PASS] test_malformed_body_uses_problem_shape
+  [PASS] test_method_override_patch_and_delete
+  [PASS] test_missing_token_returns_401_and_unknown_returns_404
+  [PASS] test_options_discovery_and_cors
+  [PASS] test_query_params_filtering_sorting_and_pagination
+  [PASS] test_rate_limiting_signal
+============================================================
+Results: 15 passed, 0 failed in 0.009s
+============================================================
+
+$ python3 validate_openapi.py openapi.yaml
+OpenAPI document parsed successfully.
+Structural checks completed: 0 errors.</pre>
+
+<footer>
+CampusEats Orders REST Service · CS543 Web Services · Assignment 5 · Group 12
+</footer>
+
+</body>
+</html>
