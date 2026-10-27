@@ -1,0 +1,768 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusEats | Campus Menu</title>
+
+  <style>
+    :root {
+      --green: #176b52;
+      --green-dark: #10523e;
+      --green-light: #e5f3eb;
+      --cream: #faf8f2;
+      --white: #ffffff;
+      --text: #202b25;
+      --muted: #748078;
+      --border: #e8e8df;
+      --red: #b93838;
+      --shadow: 0 8px 28px rgba(32, 43, 37, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .topbar {
+      background: var(--green);
+      color: white;
+      padding: 18px 7%;
+    }
+
+    .nav {
+      max-width: 1120px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.15);
+      font-size: 23px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 23px;
+      letter-spacing: -0.7px;
+    }
+
+    .brand p {
+      margin: 1px 0 0;
+      color: #dcece3;
+      font-size: 12px;
+    }
+
+    .nav-tag {
+      padding: 7px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 30px;
+      font-size: 12px;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 42px 24px 60px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .hero h2 {
+      margin: 8px 0;
+      font-size: clamp(30px, 4vw, 43px);
+      letter-spacing: -1.6px;
+      line-height: 1.15;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero-mark {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 94px;
+      height: 94px;
+      border-radius: 28px;
+      background: #f0e8d5;
+      font-size: 46px;
+      transform: rotate(3deg);
+    }
+
+    .menu-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .menu-heading h3,
+    .form-heading h3 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+    }
+
+    .menu-heading p,
+    .form-heading p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .count {
+      color: var(--green);
+      background: var(--green-light);
+      padding: 6px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dish-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .dish {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .dish:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(32, 43, 37, 0.1);
+    }
+
+    .dish-art {
+      height: 115px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #f1ead9, #e4efdf);
+      font-size: 54px;
+    }
+
+    .dish:nth-child(3n + 2) .dish-art {
+      background: linear-gradient(135deg, #f7e8d7, #f5f0dc);
+    }
+
+    .dish:nth-child(3n) .dish-art {
+      background: linear-gradient(135deg, #e3eee5, #f1e9d7);
+    }
+
+    .dish-content {
+      padding: 17px;
+    }
+
+    .dish-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .dish h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 750;
+    }
+
+    .dish-id {
+      color: #8a938c;
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    .price {
+      color: var(--green);
+      font-weight: 800;
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status.available {
+      color: #176b52;
+      background: #e6f4e9;
+    }
+
+    .status.unavailable {
+      color: #9c4540;
+      background: #fbeae7;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .section-divider {
+      margin: 42px 0;
+      border: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .form-panel {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 36px;
+      padding: 30px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .form-heading h3 {
+      font-size: 25px;
+      margin-top: 8px;
+    }
+
+    .form-heading p {
+      margin-top: 10px;
+      line-height: 1.8;
+      max-width: 320px;
+    }
+
+    .form-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--green-light);
+      font-size: 25px;
+      margin-bottom: 18px;
+    }
+
+    form {
+      display: grid;
+      gap: 17px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #dce2dc;
+      border-radius: 9px;
+      outline: none;
+      background: #fdfdfb;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 82, 0.1);
+    }
+
+    .availability-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .availability-option input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--green);
+    }
+
+    .submit-button,
+    .refresh-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 13px 18px;
+    }
+
+    .submit-button:hover,
+    .refresh-button:hover {
+      background: var(--green-dark);
+    }
+
+    .submit-button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    .refresh-button {
+      padding: 9px 13px;
+      font-size: 12px;
+    }
+
+    #message {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+    }
+
+    .success {
+      color: #176b52;
+    }
+
+    .error {
+      color: var(--red);
+    }
+
+    .loading,
+    .empty {
+      grid-column: 1 / -1;
+      padding: 30px;
+      border: 1px dashed #d8ded7;
+      border-radius: 14px;
+      color: var(--muted);
+      background: white;
+      text-align: center;
+    }
+
+    footer {
+      padding: 23px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        padding: 30px 17px 45px;
+      }
+
+      .dish-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .hero-mark {
+        width: 70px;
+        height: 70px;
+        font-size: 35px;
+        border-radius: 22px;
+      }
+
+      .form-panel {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        padding: 23px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .topbar {
+        padding: 14px 17px;
+      }
+
+      .brand h1 {
+        font-size: 20px;
+      }
+
+      .nav-tag {
+        font-size: 10px;
+      }
+
+      .dish-list {
+        grid-template-columns: 1fr;
+      }
+
+      .dish-art {
+        height: 95px;
+      }
+
+      .hero-mark {
+        display: none;
+      }
+
+      .menu-heading h3 {
+        font-size: 19px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="nav">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">🍽️</div>
+        <div>
+          <h1>CampusEats</h1>
+          <p>Good food. Campus life.</p>
+        </div>
+      </div>
+      <span class="nav-tag">MENU MANAGEMENT</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Your campus food spot</div>
+        <h2>Fresh choices,<br>right on campus.</h2>
+        <p>Explore the menu and find your next favourite.</p>
+      </div>
+      <div class="hero-mark" aria-hidden="true">🥗</div>
+    </section>
+
+    <section>
+      <div class="menu-heading">
+        <div>
+          <h3>Today's menu</h3>
+          <p>Simple favourites, all in one place.</p>
+        </div>
+        <button type="button" id="refreshButton" class="refresh-button">
+          ↻ Refresh
+        </button>
+      </div>
+
+      <div id="dishList" class="dish-list" aria-live="polite">
+        <div class="loading">Loading the menu...</div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <section class="form-panel">
+      <div class="form-heading">
+        <div class="form-icon" aria-hidden="true">🥘</div>
+        <div class="eyebrow">Menu management</div>
+        <h3>Add something<br>delicious.</h3>
+        <p>
+          Add a dish to the CampusEats menu. It will be saved to the
+          database and appear in the menu automatically.
+        </p>
+      </div>
+
+      <form id="dishForm">
+        <div class="field">
+          <label for="name">Dish name</label>
+          <input
+            type="text"
+            id="name"
+            required
+            maxlength="100"
+            placeholder="e.g. Paneer Sandwich"
+          >
+        </div>
+
+        <div class="field">
+          <label for="price">Price (₹)</label>
+          <input
+            type="number"
+            id="price"
+            required
+            min="0.01"
+            step="0.01"
+            placeholder="Enter price"
+          >
+        </div>
+
+        <label class="availability-option" for="available">
+          <input type="checkbox" id="available" checked>
+          Available to order
+        </label>
+
+        <button type="submit" class="submit-button">
+          <span aria-hidden="true">＋</span> Add to menu
+        </button>
+
+        <p id="message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    CampusEats · Powered by GraphQL and MySQL
+  </footer>
+
+  <script>
+    const GRAPHQL_URL = "/graphql";
+
+    async function graphqlRequest(query, variables = {}) {
+      const response = await fetch(GRAPHQL_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query, variables })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.errors) {
+        const message = result.errors
+          ? result.errors.map(error => error.message).join("; ")
+          : "Request failed";
+
+        throw new Error(message);
+      }
+
+      return result.data;
+    }
+
+    function getDishEmoji(name) {
+      const dishName = name.toLowerCase();
+
+      if (dishName.includes("burger")) return "🍔";
+      if (dishName.includes("roll") || dishName.includes("wrap")) return "🌯";
+      if (dishName.includes("dosa")) return "🥞";
+      if (dishName.includes("fries")) return "🍟";
+      if (dishName.includes("biryani")) return "🍛";
+      if (dishName.includes("sandwich")) return "🥪";
+      if (dishName.includes("pizza")) return "🍕";
+      if (dishName.includes("noodle")) return "🍜";
+      if (dishName.includes("rice")) return "🍚";
+      if (dishName.includes("salad")) return "🥗";
+      if (dishName.includes("cake")) return "🍰";
+      if (dishName.includes("coffee")) return "☕";
+
+      return "🍽️";
+    }
+
+    async function loadDishes() {
+      const dishList = document.getElementById("dishList");
+      dishList.replaceChildren();
+
+      const loading = document.createElement("div");
+      loading.className = "loading";
+      loading.textContent = "Loading the menu...";
+      dishList.appendChild(loading);
+
+      try {
+        const data = await graphqlRequest(`
+          query GetDishes {
+            dishes {
+              id
+              name
+              price
+              available
+            }
+          }
+        `);
+
+        dishList.replaceChildren();
+
+        if (data.dishes.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "No dishes yet. Add the first dish below!";
+          dishList.appendChild(empty);
+          return;
+        }
+
+        data.dishes.forEach(dish => {
+          const card = document.createElement("article");
+          card.className = "dish";
+
+          const art = document.createElement("div");
+          art.className = "dish-art";
+          art.setAttribute("aria-hidden", "true");
+          art.textContent = getDishEmoji(dish.name);
+
+          const content = document.createElement("div");
+          content.className = "dish-content";
+
+          const top = document.createElement("div");
+          top.className = "dish-top";
+
+          const details = document.createElement("div");
+
+          const title = document.createElement("h4");
+          title.textContent = dish.name;
+
+          const id = document.createElement("div");
+          id.className = "dish-id";
+          id.textContent = `Menu item #${dish.id}`;
+
+          details.append(title, id);
+
+          const price = document.createElement("div");
+          price.className = "price";
+          price.textContent = `₹${Number(dish.price).toFixed(2)}`;
+
+          top.append(details, price);
+
+          const status = document.createElement("span");
+          status.className = dish.available
+            ? "status available"
+            : "status unavailable";
+
+          const dot = document.createElement("span");
+          dot.className = "status-dot";
+
+          const statusText = document.createElement("span");
+          statusText.textContent = dish.available
+            ? "Available"
+            : "Unavailable";
+
+          status.append(dot, statusText);
+          content.append(top, status);
+          card.append(art, content);
+          dishList.appendChild(card);
+        });
+      } catch (error) {
+        dishList.replaceChildren();
+
+        const errorBox = document.createElement("div");
+        errorBox.className = "empty error";
+        errorBox.textContent = `Could not load menu: ${error.message}`;
+
+        dishList.appendChild(errorBox);
+      }
+    }
+
+    document.getElementById("refreshButton").addEventListener(
+      "click",
+      loadDishes
+    );
+
+    document.getElementById("dishForm").addEventListener(
+      "submit",
+      async event => {
+        event.preventDefault();
+
+        const form = document.getElementById("dishForm");
+        const message = document.getElementById("message");
+        const button = form.querySelector('button[type="submit"]');
+
+        const name = document.getElementById("name").value.trim();
+        const price = Number(document.getElementById("price").value);
+        const available = document.getElementById("available").checked;
+
+        if (!name || !Number.isFinite(price) || price <= 0) {
+          message.className = "error";
+          message.textContent =
+            "Enter a valid dish name and a positive price.";
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Adding dish...";
+        message.className = "";
+        message.textContent = "Saving your dish...";
+
+        try {
+          const data = await graphqlRequest(`
+            mutation AddDish($input: AddDishInput!) {
+              addDish(input: $input) {
+                id
+                name
+                price
+                available
+              }
+            }
+          `, {
+            input: { name, price, available }
+          });
+
+          message.className = "success";
+          message.textContent =
+            `${data.addDish.name} was added successfully!`;
+
+          form.reset();
+          document.getElementById("available").checked = true;
+
+          await loadDishes();
+        } catch (error) {
+          message.className = "error";
+          message.textContent = `Could not add dish: ${error.message}`;
+        } finally {
+          button.disabled = false;
+          button.innerHTML = '<span aria-hidden="true">＋</span> Add to menu';
+        }
+      }
+    );
+
+    loadDishes();
+  </script>
+</body>
+</html>
