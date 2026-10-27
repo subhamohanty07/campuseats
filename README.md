@@ -200,6 +200,5 @@ The following operations were tested during development:
 
 ## 11. Submission Links
 
-- **GitHub Repository:** Add your repository URL here.
-- **Google Drive Demo Video:** Add your demo video link here.
-- **Screenshots:** Add the before-and-after screenshots required for the assignment.
+- **GitHub Repository:** https://github.com/subhamohanty07/campuseats.git
+- **Google Drive Demo Video:** https://drive.google.com/file/d/1UDKjbTyhveJiWpQgQ-2dTRr2jXE35e61/view?usp=drive_link
