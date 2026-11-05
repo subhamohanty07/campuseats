@@ -1,121 +1,170 @@
-# CampusEats
+# CampusEats – REST API
 
-CampusEats is a campus food ordering system developed as the running example for the Web Services course.
+**Course:** CS543 – Web Services  
+**Assignment:** 8  
+**Project:** CampusEats – Food Menu Management Service
 
-This repository contains the work completed for understanding HTTP communication, network analysis, service-oriented architecture, service boundaries, service contracts, database ownership, and inter-service communication.
+## 1. Project Overview
 
----
+CampusEats is a simple food menu management application developed using Node.js and Express.js.
 
-## Team Members
+It provides REST API endpoints to retrieve all food items, view individual items, and add new dishes. A simple frontend allows users to view the menu and add new dishes with their price and availability status.
 
-| Team Member | Service |
+The application uses an in-memory JavaScript array to store food items.
+
+## 2. Team Members
+
+| S. No. | Name | Roll Number |
+|---|---|---|
+| 1 | Mahi Verma | 20252651032 |
+| 2 | Subham Kumar Mohanty | 20252651057 |
+| 3 | Abhishek Jadhao | 20252651003 |
+| 4 | Harsh N Shende | 20252651023 |
+| 5 | Rishabh Mishra | 20252651041 |
+
+## 3. Technologies Used
+
+- Node.js
+- Express.js
+- HTML
+- CSS
+- JavaScript
+- REST API
+- Fetch API
+
+## 4. API Endpoints
+
+The application provides the following REST API endpoints:
+
+| HTTP Method | Endpoint | Description |
+|---|---|---|
+| GET | `/items` | Retrieve all food items |
+| GET | `/items/:id` | Retrieve a specific food item by ID |
+| POST | `/items` | Add a new food item |
+
+### Example: GET /items
+
+Retrieves all food items.
+
+### Example: GET /items/1
+
+Retrieves the food item with ID 1.
+
+### Example: POST /items
+
+Adds a new food item.
+
+**Sample JSON Request:**
+
+```json
+{
+  "name": "Chicken Roll",
+  "price": 120,
+  "available": true
+}
+```
+
+## 5. HTTP Status Codes
+
+| Status Code | Description |
 |---|---|
-| **Subham Kumar Mohanty** | Orders Service |
-| **Mahi Verma** | Account Service |
-| **Abhishek Jadhao** | Catalogue Service |
-| **Harsh N Shende** | Payments & Delivery Service |
-| **Rishabh Mishra** | Notification Service |
+| 200 OK | Request completed successfully |
+| 201 Created | New food item successfully created |
+| 404 Not Found | Requested food item does not exist |
+| 422 Unprocessable Entity | Required field is missing |
 
-The project is developed collaboratively using Git and GitHub. Each team member works on a separate feature branch and contributes through pull requests.
+## 6. Request Handling
 
----
+### req.params
 
-## Project Architecture
+`req.params.id` is used in the `GET /items/:id` endpoint to retrieve the ID of a food item from the URL.
 
-CampusEats is divided into five services:
+### req.body
 
-### 1. Account Service
+`req.body` is used in the `POST /items` endpoint to access the data sent by the client when adding a new food item.
 
-**Owner:** Mahi Verma
+### express.json()
 
-Responsible for user and address management.
+`express.json()` is middleware used to parse incoming JSON request bodies. It allows the application to access the submitted JSON data through `req.body`.
 
-**Owns:**
+## 7. Frontend Features
 
-- `users`
-- `addresses`
+The frontend provides the following features:
 
-### 2. Catalogue Service
+- Display all food items.
+- Show the price of each dish.
+- Display whether a dish is Available or Unavailable.
+- Add new food items through a form.
+- Select the availability status while adding a dish.
+- Automatically refresh the menu after adding a new dish.
 
-**Owner:** Abhishek Jadhao
+The frontend communicates with the backend using JavaScript's Fetch API.
 
-Responsible for restaurant and menu information.
+## 8. Data Storage
 
-**Owns:**
+The application uses an in-memory JavaScript array to store food items.
 
-- `restaurants`
-- `menu_items`
+Four sample food items are available when the server starts.
 
-### 3. Orders Service
+New food items can be added through the frontend or by sending POST requests to the API.
 
-**Owner:** Subham Kumar Mohanty
+**Note:** Since the application uses in-memory storage, newly added data is lost when the server restarts.
 
-Responsible for cart and order management.
-
-**Owns:**
-
-- `carts`
-- `cart_items`
-- `orders`
-- `order_items`
-
-### 4. Payments & Delivery Service
-
-**Owner:** Harsh N Shende
-
-Responsible for payment transactions, refunds, riders, and delivery assignments.
-
-**Owns:**
-
-- `transactions`
-- `refunds`
-- `riders`
-- `assignments`
-
-### 5. Notification Service
-
-**Owner:** Rishabh Mishra
-
-Responsible for managing notifications.
-
-**Owns:**
-
-- `message_log`
-
-Each service owns its own data. No two services share the same database tables.
-
----
-
-## Service Design
-
-The CampusEats system follows the five main properties of a service:
-
-1. **Reachable** — Each service can be accessed through defined operations.
-2. **Self-contained** — Each service owns and manages its own data.
-3. **Has a Contract** — Each service exposes defined operations that other services may call.
-4. **Independent** — Services can be developed and changed independently.
-5. **Loosely Coupled** — Services communicate through contracts rather than directly accessing each other's internal data.
-
----
-
-## Service Contracts
-
-Each service exposes operations through a defined contract.
-
-The contract specifies:
-
-- Operation name
-- Input
-- Output
-- Possible errors
-
-The internal database structure and implementation details are hidden from callers.
-
----
-
-## Central Operation
-
-The central business operation of CampusEats is:
+## 9. Project Structure
 
 ```text
-placeOrder
+CampusEats_Assignment8/
+│
+├── server.js
+├── package.json
+├── package-lock.json
+├── README.md
+│
+└── public/
+    ├── index.html
+    └── style.css
+```
+
+## 10. How to Run the Project
+
+Follow these steps to run the application locally.
+
+**Step 1: Clone the repository**
+
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+```
+
+**Step 2: Navigate to the project folder**
+
+```bash
+cd CampusEats_Assignment8
+```
+
+**Step 3: Install dependencies**
+
+```bash
+npm install
+```
+
+**Step 4: Start the server**
+
+```bash
+node server.js
+```
+
+**Step 5: Open the application**
+
+Open the following URL in your browser:
+
+```text
+http://localhost:3000
+```
+
+## 11. GitHub Repository
+
+**Repository Link:** https://github.com/subhamohanty07/campuseats.git
+
+## 12. Conclusion
+
+CampusEats demonstrates the implementation of a simple RESTful web service using Node.js and Express.js. It covers the basic concepts of REST API development, HTTP methods, request handling, status codes, JSON data exchange, and frontend-backend communication using the Fetch API.
