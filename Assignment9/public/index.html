@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusEats – Fresh food on campus</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ================= LOGIN ================= -->
+    <div class="auth" id="loginSection">
+        <div class="auth-hero">
+            <div class="logo"><span class="dot">🍴</span> CampusEats</div>
+            <div>
+                <h1>Hungry between classes?</h1>
+                <p>Browse the canteen menu, pick your favourites and skip the queue.</p>
+            </div>
+            <small></small>
+        </div>
+
+        <div class="auth-panel">
+            <div class="card">
+                <h2>Welcome back</h2>
+                <p class="sub">Log in to see today's menu.</p>
+
+                <form id="loginForm">
+                    <label class="field">
+                        <span>Username</span>
+                        <input id="username" type="text" autocomplete="username" required>
+                    </label>
+                    <label class="field">
+                        <span>Password</span>
+                        <input id="password" type="password" autocomplete="current-password" required>
+                    </label>
+                    <button class="btn block" type="submit">Log in</button>
+                </form>
+                <p id="loginMessage" class="msg error"></p>
+
+                <div class="demo">
+                    <p>Try a demo account (click to fill):</p>
+                    <div class="demo-row">
+                        <button type="button" class="chip-btn" data-user="subham" data-pass="subham123">
+                            <b>🎓 Customer</b><small>subham</small>
+                        </button>
+                        <button type="button" class="chip-btn" data-user="subhsrestaurant" data-pass="subhsrestaurant123">
+                            <b>👨‍🍳 Restaurant</b><small>subhsrestaurant</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= APP ================= -->
+    <div id="menuSection" hidden>
+        <header class="topbar">
+            <div class="logo dark"><span class="dot">🍴</span> CampusEats</div>
+            <div class="top-actions">
+                <span class="role-pill" id="userInfo"></span>
+                <button class="btn cart-btn small" id="cartButton" type="button">🛒 Cart<span class="cart-count" id="cartCount">0</span></button>
+                <button class="btn ghost small" id="logoutButton" type="button">Log out</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="banner">
+                <div>
+                    <h2 id="greeting">Today's menu</h2>
+                    <p>Freshly made on campus. Order before the lunch rush!</p>
+                </div>
+                <div class="stats">
+                    <div class="stat"><b id="statTotal">0</b><span>Dishes</span></div>
+                    <div class="stat"><b id="statAvail">0</b><span>Available</span></div>
+                </div>
+            </section>
+
+            <div class="toolbar">
+                <div class="search"><input id="searchInput" type="search" placeholder="Search dishes…"></div>
+                <div class="filters" id="filters">
+                    <button class="filter active" data-filter="all" type="button">All</button>
+                    <button class="filter" data-filter="available" type="button">Available</button>
+                    <button class="filter" data-filter="unavailable" type="button">Sold out</button>
+                </div>
+            </div>
+
+            <div id="list" class="grid"><p class="empty">Loading menu…</p></div>
+
+            <section class="owner" id="ownerSection" hidden>
+                <div class="card">
+                    <h2>Add a new dish</h2>
+                    <p class="sub">Only restaurant staff can see this.</p>
+                    <form id="addForm">
+                        <div class="owner-grid">
+                            <label class="field full">
+                                <span>Dish name</span>
+                                <input id="name" type="text" required>
+                            </label>
+                            <label class="field">
+                                <span>Price (₹)</span>
+                                <input id="price" type="number" min="0" required>
+                            </label>
+                            <label class="field">
+                                <span>Status</span>
+                                <select id="available">
+                                    <option value="true">Available</option>
+                                    <option value="false">Unavailable</option>
+                                </select>
+                            </label>
+                        </div>
+                        <button class="btn" type="submit">Add dish</button>
+                    </form>
+                    <p id="message" class="msg"></p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Cart drawer -->
+        <div class="overlay" id="overlay" hidden></div>
+        <aside class="drawer" id="drawer" hidden>
+            <header>
+                <h3>Your cart</h3>
+                <button class="icon-btn" id="closeCart" type="button" aria-label="Close cart">✕</button>
+            </header>
+            <div class="cart-list" id="cartList"></div>
+            <footer>
+                <div class="total"><span>Total</span><span id="cartTotal">₹0</span></div>
+                <button class="btn block" id="checkoutBtn" type="button">Place order</button>
+            </footer>
+        </aside>
+    </div>
+
+    <div class="toast" id="toast" hidden></div>
+
+    <script>
+        let token = '';
+        let role = '';
+        let allItems = [];
+        let currentFilter = 'all';
+        let cart = {};              // { itemId: qty }
+
+        const $ = (id) => document.getElementById(id);
+
+        // Prevent HTML injection when rendering dish names
+        const esc = (s) => String(s).replace(/[&<>"']/g, c => (
+            { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+        ));
+
+        function emojiFor(name) {
+            const n = name.toLowerCase();
+            const map = [
+                ['burger', '🍔'], ['roll', '🌯'], ['dosa', '🥞'], ['fries', '🍟'],
+                ['pizza', '🍕'], ['sandwich', '🥪'], ['noodle', '🍜'], ['rice', '🍚'],
+                ['coffee', '☕'], ['tea', '🍵'], ['cake', '🍰'], ['samosa', '🥟'],
+                ['salad', '🥗'], ['juice', '🧃'], ['pasta', '🍝']
+            ];
+            const hit = map.find(([k]) => n.includes(k));
+            return hit ? hit[1] : '🍽️';
+        }
+
+        let toastTimer;
+        function toast(text, isError = false) {
+            const t = $('toast');
+            t.textContent = text;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.hidden = false;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.hidden = true, 2400);
+        }
+
+        async function apiRequest(url, options = {}) {
+            options.headers = {
+                ...(options.headers || {}),
+                'Authorization': `Bearer ${token}`
+            };
+            return fetch(url, options);
+        }
+
+        /* ---------- Menu ---------- */
+        async function loadItems() {
+            const response = await apiRequest('/items');
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+            allItems = await response.json();
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const q = $('searchInput').value.trim().toLowerCase();
+            const shown = allItems.filter(i =>
+                i.name.toLowerCase().includes(q) &&
+                (currentFilter === 'all' ||
+                 (currentFilter === 'available' && i.available) ||
+                 (currentFilter === 'unavailable' && !i.available))
+            );
+
+            $('statTotal').textContent = allItems.length;
+            $('statAvail').textContent = allItems.filter(i => i.available).length;
+
+            $('list').innerHTML = shown.length ? shown.map(item => `
+                <article class="dish ${item.available ? '' : 'sold-out'}">
+                    <div class="dish-img">${emojiFor(item.name)}</div>
+                    <div class="dish-body">
+                        <h3>${esc(item.name)}</h3>
+                        <div class="dish-meta">
+                            <span class="price">₹${esc(item.price)}</span>
+                            <span class="badge ${item.available ? 'in' : 'out'}">${item.available ? 'Available' : 'Sold out'}</span>
+                        </div>
+                        <button class="btn small" data-add="${item.id}" ${item.available ? '' : 'disabled'}>
+                            ${item.available ? 'Add to cart' : 'Unavailable'}
+                        </button>
+                    </div>
+                </article>
+            `).join('') : '<p class="empty">No dishes match your search.</p>';
+        }
+
+        $('searchInput').addEventListener('input', renderMenu);
+
+        $('filters').addEventListener('click', (e) => {
+            const btn = e.target.closest('.filter');
+            if (!btn) return;
+            currentFilter = btn.dataset.filter;
+            document.querySelectorAll('.filter').forEach(f => f.classList.toggle('active', f === btn));
+            renderMenu();
+        });
+
+        $('list').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-add]');
+            if (!btn) return;
+            const id = Number(btn.dataset.add);
+            cart[id] = (cart[id] || 0) + 1;
+            updateCart();
+            toast('Added to cart');
+        });
+
+        /* ---------- Cart ---------- */
+        function updateCart() {
+            const entries = Object.entries(cart)
+                .map(([id, qty]) => ({ item: allItems.find(i => i.id === Number(id)), qty }))
+                .filter(e => e.item);
+
+            const count = entries.reduce((s, e) => s + e.qty, 0);
+            const total = entries.reduce((s, e) => s + e.qty * Number(e.item.price), 0);
+
+            $('cartCount').textContent = count;
+            $('cartTotal').textContent = `₹${total}`;
+            $('checkoutBtn').disabled = count === 0;
+
+            $('cartList').innerHTML = entries.length ? entries.map(({ item, qty }) => `
+                <div class="cart-row">
+                    <div>${esc(item.name)}<small>₹${esc(item.price)} each</small></div>
+                    <div class="qty">
+                        <button data-dec="${item.id}" aria-label="Decrease">−</button>
+                        <span>${qty}</span>
+                        <button data-inc="${item.id}" aria-label="Increase">+</button>
+                    </div>
+                </div>
+            `).join('') : '<p class="empty">Your cart is empty.</p>';
+        }
+
+        $('cartList').addEventListener('click', (e) => {
+            const inc = e.target.closest('[data-inc]');
+            const dec = e.target.closest('[data-dec]');
+            if (inc) cart[inc.dataset.inc]++;
+            if (dec) {
+                const id = dec.dataset.dec;
+                cart[id]--;
+                if (cart[id] <= 0) delete cart[id];
+            }
+            updateCart();
+        });
+
+        function openCart(open) {
+            $('drawer').hidden = !open;
+            $('overlay').hidden = !open;
+        }
+        $('cartButton').addEventListener('click', () => openCart(true));
+        $('closeCart').addEventListener('click', () => openCart(false));
+        $('overlay').addEventListener('click', () => openCart(false));
+
+        $('checkoutBtn').addEventListener('click', () => {
+            // The API has no orders route yet, so this is a front-end demo only.
+            cart = {};
+            updateCart();
+            openCart(false);
+            toast('Order placed! 🎉');
+        });
+
+        /* ---------- Login ---------- */
+        document.querySelectorAll('.chip-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                $('username').value = btn.dataset.user;
+                $('password').value = btn.dataset.pass;
+                $('loginMessage').textContent = '';
+            });
+        });
+
+        $('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: $('username').value,
+                    password: $('password').value
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                $('loginMessage').textContent = data.error;
+                return;
+            }
+
+            token = data.token;
+            role = data.role;
+
+            $('loginMessage').textContent = '';
+            $('loginSection').hidden = true;
+            $('menuSection').hidden = false;
+            $('userInfo').textContent = role;
+            $('greeting').textContent = role === 'customer' ? "What are you craving today?" : "Manage your menu";
+            $('ownerSection').hidden = role !== 'restaurant' && role !== 'admin';
+
+            loadItems().then(updateCart);
+        });
+
+        /* ---------- Add dish (restaurant) ---------- */
+        $('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const response = await apiRequest('/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: $('name').value,
+                    price: $('price').value,
+                    available: $('available').value === 'true'
+                })
+            });
+
+            const data = await response.json();
+            const msg = $('message');
+            msg.textContent = response.ok ? 'Dish added successfully.' : data.error;
+            msg.className = 'msg ' + (response.ok ? 'ok' : 'error');
+
+            if (response.ok) {
+                e.target.reset();
+                toast('Dish added');
+                loadItems();
+            }
+        });
+
+        /* ---------- Logout ---------- */
+        function logout() {
+            token = '';
+            role = '';
+            cart = {};
+            allItems = [];
+            openCart(false);
+            $('menuSection').hidden = true;
+            $('loginSection').hidden = false;
+            $('loginForm').reset();
+        }
+
+        $('logoutButton').addEventListener('click', logout);
+    </script>
+</body>
+</html>

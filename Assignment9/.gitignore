@@ -1,0 +1,5 @@
+.env
+node_modules
+customer.json
+restaurant.json
+dish.json
