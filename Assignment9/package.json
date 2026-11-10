@@ -1,0 +1,19 @@
+{
+  "name": "campuseats_assignment9",
+  "version": "1.0.0",
+  "description": "CampusEats REST API secured with JWT authentication and role-based authorization",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
